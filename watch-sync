@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+
+"""Tool for watching progress of sync."""
+
+import os
+import time
+from hurry.filesize import size, verbose
+
+LOGO = """
+  _      __     __      __       ____
+ | | /| / /__ _/ /_____/ /  ____/ __/_ _____  ____
+ | |/ |/ / _ `/ __/ __/ _ \/___/\ \/ // / _ \/ __/
+ |__/|__/\_,_/\__/\__/_//_/   /___/\_, /_//_/\__/
+                                  /___/
+"""
+
+
+def get_meminfo_dirty_size():
+    """Reads meminfo and returns size of 'Dirty' in bytes.
+    """
+    meminfo = open("/proc/meminfo", mode='r').read()
+    meminfo_dirty = next(x for x in meminfo.split("\n") if "Dirty" in x)
+    dirty_size = meminfo_dirty.split(":")[1].strip()
+    dirty_size = dirty_size.strip(" kB")
+    return int(dirty_size)*1024
+
+
+if __name__ == "__main__":
+    try:
+        while True:
+            dirty_size = size(get_meminfo_dirty_size())
+            os.system("clear")
+            print(LOGO)
+            print(f"Dirty: {dirty_size}")
+            time.sleep(2)
+    except KeyboardInterrupt:
+        pass
